@@ -97,6 +97,7 @@ public class SmokePartController : MonoBehaviour
         pMm = particleSystem.main;
         pMmPMc = new ParticleSystem.MinMaxCurve(smokeMinHigh, smokeMinHigh);
     }
+
     /// <summary>
     /// 初始化烟
     /// </summary>
@@ -108,5 +109,7 @@ public class SmokePartController : MonoBehaviour
         pSm.box = smokeBoxDefault;
         pMmPMc.constantMax = smokeMaxHigh;
         pMm.startLifetime = pMmPMc;
+        particleSystem.Stop();
+        particleSystem.Clear();
     }
 }

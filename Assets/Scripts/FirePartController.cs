@@ -72,6 +72,7 @@ public class FirePartController : MonoBehaviour
             }
         }
     }
+
     /// <summary>
     /// 火强度和大小
     /// </summary>
@@ -92,21 +93,13 @@ public class FirePartController : MonoBehaviour
     }
 
     /// <summary>
-    /// 开始
-    /// </summary>
-    public void StartFire()
-    {
-        startFire = true;
-    }
-
-    /// <summary>
     /// 初始化火
     /// </summary>
     public void InitFire()
     {
-        startFire = false;
-        time = 0;
+        startFire = true;
         isFire = false;
+        time = 0;
         pMc.constant = 0;
         pEm.rateOverTime = pMc;
         pMmPMc.constantMax = fireMaxHigh;
@@ -114,5 +107,8 @@ public class FirePartController : MonoBehaviour
         pSm.angle = PlayerPrefs.GetFloat(MyConst.FIREANGEL);
         pSm.radius = PlayerPrefs.GetFloat(MyConst.FIRERADIUS);
         GetComponentInChildren<SmokePartController>().InitSmoke();
+        particleSystem.Stop();
+        particleSystem.Clear();
+        particleSystem.Play();
     }
 }
