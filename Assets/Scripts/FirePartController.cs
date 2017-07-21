@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 /// <summary>
@@ -14,6 +15,7 @@ public class FirePartController : MonoBehaviour
     ParticleSystem.MinMaxCurve pMmPMc;
     [HideInInspector] public bool isFire;
     float time = 0;
+    bool startFire;//开始
     [SerializeField] float fireStartTime = 2f;//开始生成火的时间
     [SerializeField] float fireDiffuseEndTime = 5f;//停止时间
     public float fireDiffuseSpeed = 2f;//扩散速度
@@ -28,33 +30,46 @@ public class FirePartController : MonoBehaviour
         InitFireSize();
 
         InitFireHigh();
+
+        RecordFireData();
+    }
+
+    /// <summary>
+    /// 记录火初始数据
+    /// </summary>
+    private void RecordFireData()
+    {
+        PlayerPrefs.SetFloat(MyConst.FIREANGEL, pSm.angle);
+        PlayerPrefs.SetFloat(MyConst.FIRERADIUS, pSm.radius);
     }
 
     // Update is called once per frame
     void Update()
     {
-        time += Time.deltaTime;
-        if (time > fireStartTime)
+        if (startFire)
         {
-            isFire = true;
-            if (time > fireDiffuseEndTime + fireStartTime)
+            time += Time.deltaTime;
+            if (time > fireStartTime)
             {
-                isFire = false;
-                return;
+                isFire = true;
+                if (time > fireDiffuseEndTime + fireStartTime)
+                {
+                    isFire = false;
+                    return;
+                }
+                //火强度和扩散
+                pMc.constant += Time.deltaTime * fireDiffuseSpeed * 10;
+                pEm.rateOverTime = pMc;
+                pSm.angle += Time.deltaTime * fireDiffuseSpeed;
+                pSm.radius += Time.deltaTime * 0.1f * fireDiffuseSpeed;
+                //高度
+                pMmPMc.constantMax += Time.deltaTime * fireDiffuseSpeed * 0.1f;
+                if (pMmPMc.constantMax > fireMaxHigh)
+                {
+                    pMmPMc.constantMax = fireMaxHigh;
+                }
+                pMm.startLifetime = pMmPMc;
             }
-            //火强度和扩散
-            pMc.constant += Time.deltaTime * fireDiffuseSpeed * 10;
-            pEm.rateOverTime = pMc;
-            pSm.angle += Time.deltaTime * fireDiffuseSpeed;
-            pSm.radius += Time.deltaTime * 0.1f * fireDiffuseSpeed;
-            //高度
-            pMmPMc.constantMax += Time.deltaTime * fireDiffuseSpeed * 0.1f;
-            if (pMmPMc.constantMax > fireMaxHigh)
-            {
-                pMmPMc.constantMax = fireMaxHigh;
-            }
-            pMm.startLifetime = pMmPMc;
-
         }
     }
     /// <summary>
@@ -74,5 +89,30 @@ public class FirePartController : MonoBehaviour
     {
         pMm = particleSystem.main;
         pMmPMc = new ParticleSystem.MinMaxCurve(fireMinHigh, fireMinHigh);
+    }
+
+    /// <summary>
+    /// 开始
+    /// </summary>
+    public void StartFire()
+    {
+        startFire = true;
+    }
+
+    /// <summary>
+    /// 初始化火
+    /// </summary>
+    public void InitFire()
+    {
+        startFire = false;
+        time = 0;
+        isFire = false;
+        pMc.constant = 0;
+        pEm.rateOverTime = pMc;
+        pMmPMc.constantMax = fireMaxHigh;
+        pMm.startLifetime = pMmPMc;
+        pSm.angle = PlayerPrefs.GetFloat(MyConst.FIREANGEL);
+        pSm.radius = PlayerPrefs.GetFloat(MyConst.FIRERADIUS);
+        GetComponentInChildren<SmokePartController>().InitSmoke();
     }
 }

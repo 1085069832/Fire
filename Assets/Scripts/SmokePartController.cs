@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 /// <summary>
 /// 控制烟
 /// </summary>
-public class SmokeController : MonoBehaviour
+public class SmokePartController : MonoBehaviour
 {
-
     new ParticleSystem particleSystem;
     ParticleSystem.EmissionModule pEm;//强度
     ParticleSystem.ShapeModule pSm;//shape
@@ -19,6 +19,7 @@ public class SmokeController : MonoBehaviour
     float boxZ;
     float fireDiffuseSpeed;
     float time;
+    Vector3 smokeBoxDefault;
     [SerializeField] float delayTime = 1;//产生火后产生烟的延迟时间
     [SerializeField] float smokeMinHigh = 2.5f;//最低高度
     [SerializeField] float smokeMaxHigh = 2.5f;//最高高度
@@ -32,6 +33,16 @@ public class SmokeController : MonoBehaviour
         InitSmokeSize();
 
         InitFireHigh();
+
+        RecordFireData();
+    }
+
+    /// <summary>
+    /// 记录烟初始数据
+    /// </summary>
+    private void RecordFireData()
+    {
+        smokeBoxDefault = pSm.box;
     }
 
     // Update is called once per frame
@@ -85,5 +96,17 @@ public class SmokeController : MonoBehaviour
     {
         pMm = particleSystem.main;
         pMmPMc = new ParticleSystem.MinMaxCurve(smokeMinHigh, smokeMinHigh);
+    }
+    /// <summary>
+    /// 初始化烟
+    /// </summary>
+    public void InitSmoke()
+    {
+        time = 0;
+        pMc.constant = 0;
+        pEm.rateOverTime = pMc;
+        pSm.box = smokeBoxDefault;
+        pMmPMc.constantMax = smokeMaxHigh;
+        pMm.startLifetime = pMmPMc;
     }
 }
